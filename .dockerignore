@@ -1,0 +1,13 @@
+.git
+.gitignore
+.python-version
+.ruff_cache
+.venv
+theme/static_src/node_modules/
+.env
+Dockerfile
+.dockerignore
+**/__pycache__/
+**/*.py[cod]
+db
+run.sh

@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="container mx-auto flex flex-col items-center lg:w-2/6 md:w-3/6 p-3">
+    {% for event in events %}
+    {% include 'core/event.html' with event=event %}
+    {% endfor %}
+  </div>
+{% endblock %}
