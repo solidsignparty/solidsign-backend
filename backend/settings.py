@@ -30,6 +30,12 @@ ALLOWED_HOSTS: list[str] = [
     'v2134454.hosted-by-vdsina.ru',
 ]
 
+CSRF_TRUSTED_ORIGINS: list[str] = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://v2134454.hosted-by-vdsina.ru',
+]
+
 CORS_ALLOWED_ORIGINS: list[str] = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
