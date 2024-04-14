@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    name: Lint
+    uses: ./.github/workflows/lint.yml
+    secrets: inherit
+  test:
+    name: Test
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+  docker:
+    needs: [lint, test]
+    name: Build and push image
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/docker.yml
+    secrets: inherit
