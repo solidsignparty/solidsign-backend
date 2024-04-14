@@ -1,0 +1,71 @@
+name: Deploy
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Context
+        run: |
+          echo ${{ secrets.CA_PEM }} | base64 -d > ${HOME}/ca.pem
+          echo ${{ secrets.CERT_PEM }} | base64 -d > ${HOME}/cert.pem
+          echo ${{ secrets.KEY_PEM }} | base64 -d > ${HOME}/key.pem
+          docker context create remote \
+            --description "remote" \
+            --docker "host=tcp://${{ secrets.DOCKER_REMOTE_HOST }},ca=${HOME}/ca.pem,cert=${HOME}/cert.pem,key=${HOME}/key.pem"
+          docker context use remote
+
+      - name: Migrate
+        run: |
+          docker run \
+            --rm \
+            -v db:/opt/app/db \
+            -e SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
+            -e S3_CLIENT_ID="${{ secrets.S3_CLIENT_ID }}" \
+            -e S3_CLIENT_SECRET="${{ secrets.S3_CLIENT_SECRET }}" \
+            -e ENV=prod \
+            --pull always \
+            --name solidsign-migrate \
+            ${{ vars.IMAGE_NAME }} \
+            python3 ./manage.py migrate
+
+      - name: Collectstatic
+        run: |
+          docker run \
+            --rm \
+            -v db:/opt/app/db \
+            -e SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
+            -e S3_CLIENT_ID="${{ secrets.S3_CLIENT_ID }}" \
+            -e S3_CLIENT_SECRET="${{ secrets.S3_CLIENT_SECRET }}" \
+            -e ENV=prod \
+            --name solidsign-collectstatic \
+            ${{ vars.IMAGE_NAME }} \
+            python3 ./manage.py collectstatic --noinput
+
+      - name: Deploy
+        run: |
+          docker rm -f solidsign
+          docker run \
+            -p 8001:8000 \
+            -v db:/opt/app/db \
+            -d \
+            -e SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
+            -e S3_CLIENT_ID="${{ secrets.S3_CLIENT_ID }}" \
+            -e S3_CLIENT_SECRET="${{ secrets.S3_CLIENT_SECRET }}" \
+            -e ENV=prod \
+            --pull always \
+            --restart always \
+            --name solidsign \
+            ${{ vars.IMAGE_NAME }} \
+            gunicorn -b 0.0.0.0:8000 backend.wsgi
+
