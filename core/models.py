@@ -26,7 +26,3 @@ class Event(models.Model):
 
     def __str__(self) -> str:
         return f'[{self.start_time.date()}] {self.title}'
-
-    def is_past_due(self) -> bool:
-        return False
-        return self.end_time < timezone.now()

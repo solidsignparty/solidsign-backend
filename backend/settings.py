@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from typing import Any
 
 import django_stubs_ext
 
@@ -27,8 +28,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+ENV = os.getenv('ENV', 'dev')
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('ENV') != 'prod'
+DEBUG = ENV != 'prod'
+
+IS_TEST = ENV == 'test'
+
+APPEND_SLASH = True
 
 ALLOWED_HOSTS: list[str] = [
     'localhost',
@@ -106,12 +113,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db' / 'db.sqlite3',
-    }
+DEFAULT_DB = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': BASE_DIR / 'db' / 'db.sqlite3',
 }
+
+if IS_TEST:
+    DEFAULT_DB = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
+
+
+DATABASES = {'default': DEFAULT_DB}
 
 
 # Password validation
@@ -157,7 +171,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TAILWIND_APP_NAME = 'theme'
 
-YANDEX_OBJECT_STORAGE = {
+YANDEX_OBJECT_STORAGE: dict[str, Any] = {
     'BACKEND': 'storages.backends.s3.S3Storage',
     'OPTIONS': {
         'bucket_name': 'solidsign',
@@ -167,8 +181,17 @@ YANDEX_OBJECT_STORAGE = {
         'querystring_auth': False,
     },
 }
+STATIC_STORAGE = DEFAULT_STORAGE = YANDEX_OBJECT_STORAGE
+
+
+if IS_TEST:
+    TEST_STORAGE = {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    }
+    STATIC_STORAGE = DEFAULT_STORAGE = TEST_STORAGE
+
 
 STORAGES = {
-    'default': YANDEX_OBJECT_STORAGE,
-    'staticfiles': YANDEX_OBJECT_STORAGE,
+    'default': DEFAULT_STORAGE,
+    'staticfiles': STATIC_STORAGE,
 }
