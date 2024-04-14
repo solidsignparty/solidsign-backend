@@ -31,10 +31,9 @@ jobs:
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
           images: ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}
-
-      - name: Generate Tag
-        id: tag
-        run: echo "TAG=$(echo ${{ vars.GITHUB_SHA }} | head -c 8)" >> ${{ vars.GITHUB_OUTPUT }}
+          tags: |
+            type=sha
+            type=raw,value=latest
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -45,6 +44,6 @@ jobs:
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags:
-            - ${{ steps.tag.outputs.TAG }}
-            - latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: true
