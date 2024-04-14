@@ -11,3 +11,4 @@ Dockerfile
 **/*.py[cod]
 db
 run.sh
+.mypy_cache
