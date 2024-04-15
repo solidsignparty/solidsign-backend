@@ -38,7 +38,7 @@ def test_can_view_add_event_page(admin_client: Client, add_event_url: str) -> No
     assert response.status_code == 200
 
 
-def test_can_view_echange_event_page(admin_client: Client, event: Event) -> None:
+def test_can_view_change_event_page(admin_client: Client, event: Event) -> None:
     url = reverse('admin:core_event_change', kwargs={'object_id': event.pk})
     response = admin_client.get(url)
     assert response.status_code == 200
