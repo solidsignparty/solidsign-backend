@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block page %}
-<div class="container adaptive mx-auto flex flex-col items-center p-3 pt-20 pb-10 justify-around" id="container">
+<div class="container adaptive mx-auto flex flex-col items-center p-3 pt-20 pb-10 justify-around gap-4" id="container">
 {% include 'core/includes/events.html' %}
 <button
   hx-get="{% url 'events' %}"
