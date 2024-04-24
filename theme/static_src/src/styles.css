@@ -2,12 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-.container {
-  min-width: 552px;
+.adaptive {
+  max-width: 600px;
 }
 
 @media (max-width: 600px) {
-  .container {
+  .adaptive {
     min-width: 100%;
   }
+}
+
+.artist-photo {
+  height: 300px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: block;
+}
+
+.artists {
+  max-width: 1200px;
 }

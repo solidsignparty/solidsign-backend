@@ -1,9 +1,16 @@
 {% extends 'layout.html' %}
 
-{% block content %}
-  <div class="container mx-auto flex flex-col items-center lg:w-2/6 md:w-3/6 p-3">
-    {% for event in events %}
-    {% include 'core/event.html' with event=event %}
-    {% endfor %}
-  </div>
+{% block page %}
+<div class="container adaptive mx-auto flex flex-col items-center p-3 pt-20 pb-10 gap-10 justify-around" id="container">
+{% include 'core/includes/events.html' %}
+<button
+  hx-get="{% url 'events' %}"
+  hx-target="#container"
+  hx-trigger="click"
+  hx-swap="innerHTML"
+  class="w-full p-2 hover:bg-neutral-900 rounded-sm text-md"
+>
+  Показать все
+</button>
+</div>
 {% endblock %}

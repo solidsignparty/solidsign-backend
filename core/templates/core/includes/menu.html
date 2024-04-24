@@ -1,0 +1,7 @@
+{% for menu in menu_items %}
+{% if page == menu.page %}
+<a href="{{ menu.href }}" class="bg-zinc-900 text-white rounded-sm px-3 py-2 text-sm font-medium" aria-current="page">{{ menu.title }}</a>
+{% else %}
+<a href="{{ menu.href }}" class="text-zinc-300 hover:bg-zinc-700 hover:text-white rounded-sm px-3 py-2 text-sm font-medium">{{ menu.title }}</a>
+{% endif %}
+{% endfor %}

@@ -1,2 +1,84 @@
 {% extends 'base.html' %}
+{% load static %}
 
+{% block title %}SOLID SIGN{% endblock %}
+
+{% block head %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var menu = document.getElementById('mobile-menu');
+    var classList = menu.classList;
+    document.addEventListener("click", function(event) {
+      if (!menu.contains(event.target)) {
+        if (!classList.contains('hidden')) {
+          classList.add('hidden');
+        }
+      }
+    });
+    var menuToggle = document.getElementById('mobile-menu-toggle')
+    menuToggle.addEventListener("click", function(event) {
+      console.log('menu');
+      var classList = menu.classList;
+      if (classList.contains('hidden')) {
+        classList.remove('hidden');
+      } else {
+        classList.add('hidden');
+      }
+      event.stopPropagation();
+    });
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+  <nav class="border-b border-neutral-800 fixed bg-black w-screen">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 flex flex-row items-center">
+            <a href="/"><img class="h-8 w-8" src="{% static 'logo.png' %}" alt="SOLID SIGN"></a>
+            <a href="/"><div class="font-solidsign pl-2 pt-1">SOLID SIGN</div></a>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              {% include 'core/includes/menu.html' %}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-row items-center gap-4 md:gap-8">
+          {% include 'core/includes/social.html' %}
+          <div class="-mr-2 flex md:hidden">
+            <!-- Mobile menu button -->
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center rounded-md p-2 text-zinc-400 hover:bg-zinc-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-zinc-800"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+              id="mobile-menu-toggle"
+            >
+              <span class="absolute -inset-0.5"></span>
+              <span class="sr-only">Открыть меню</span>
+              <!-- Menu open: "hidden", Menu closed: "block" -->
+              <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+              <!-- Menu open: "block", Menu closed: "hidden" -->
+              <svg class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile menu, show/hide based on menu state. -->
+    <div class="hidden" id="mobile-menu">
+      <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+        {% include 'core/includes/mobile_menu.html' %}
+      </div>
+    </div>
+  </nav>
+
+  {% block page %}{% endblock %}
+{% endblock %}

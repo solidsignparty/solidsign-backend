@@ -30,16 +30,18 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 ENV = os.getenv('ENV', 'dev')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ENV != 'prod'
-
+IS_PROD = ENV == 'prod'
 IS_TEST = ENV == 'test'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = not IS_PROD
 
 APPEND_SLASH = True
 
 ALLOWED_HOSTS: list[str] = [
     'localhost',
     '127.0.0.1',
+    '192.168.1.85',
     'v2134454.hosted-by-vdsina.ru',
 ]
 
@@ -73,7 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'tailwind',
-    'django_browser_reload',
+    *(['django_browser_reload'] if DEBUG else []),
     'theme',
     'core',
 ]
@@ -82,6 +84,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    *(['django_browser_reload.middleware.BrowserReloadMiddleware'] if DEBUG else []),
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -102,6 +105,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.menu',
             ],
         },
     },
@@ -163,6 +167,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'https://storage.yandexcloud.net/solidsign/'
+if not IS_PROD:
+    STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -184,14 +190,8 @@ YANDEX_OBJECT_STORAGE: dict[str, Any] = {
 STATIC_STORAGE = DEFAULT_STORAGE = YANDEX_OBJECT_STORAGE
 
 
-if IS_TEST:
-    TEST_STORAGE = {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+if IS_PROD:
+    STORAGES = {
+        'default': DEFAULT_STORAGE,
+        'staticfiles': STATIC_STORAGE,
     }
-    STATIC_STORAGE = DEFAULT_STORAGE = TEST_STORAGE
-
-
-STORAGES = {
-    'default': DEFAULT_STORAGE,
-    'staticfiles': STATIC_STORAGE,
-}

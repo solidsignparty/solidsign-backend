@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+
+{% block page %}
+<div class="container artists grid gap-4 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-4 pt-20 pb-10">
+  {% for artist in artists %}
+  {% include 'core/includes/artist.html' with artist=artist %}
+  {% endfor %}
+</div>
+{% endblock %}

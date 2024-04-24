@@ -9,7 +9,7 @@ from django.test import Client
 from django.urls import reverse
 from PIL import Image
 
-from core.models import Event
+from core.models import Artist, Event
 
 pytestmark = pytest.mark.django_db
 
@@ -71,7 +71,7 @@ def test_can_create_event(
             'title': title,
             'location': location,
             'tickets_url': tickets_url,
-            'image_url': image,
+            'image': image,
         },
     )
     assert response.status_code == 302
@@ -82,4 +82,47 @@ def test_can_create_event(
     assert event.title == title
     assert event.location == location
     assert event.tickets_url == tickets_url
-    assert re.match(r'/events/.*\.jpg', event.image_url.url)
+    assert re.match(r'/events/.*\.jpg', event.image.url)
+
+
+def test_can_view_change_artist_page(admin_client: Client, artist: Artist) -> None:
+    url = reverse('admin:core_artist_change', kwargs={'object_id': artist.pk})
+    response = admin_client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.fixture
+def add_artist_url() -> str:
+    return reverse('admin:core_artist_add')
+
+
+@pytest.fixture
+def list_artists_url() -> str:
+    return reverse('admin:core_artist_changelist')
+
+
+def test_can_search_artist(admin_client: Client, artist: Artist, list_artists_url: str) -> None:
+    response = admin_client.get(list_artists_url + '?q=AKINOV')
+    assert response.status_code == 200
+
+
+def test_can_view_add_artist_page(admin_client: Client, add_artist_url: str) -> None:
+    response = admin_client.get(add_artist_url)
+    assert response.status_code == 200
+
+
+def test_can_create_artist(
+    admin_client: Client,
+    add_artist_url: str,
+    list_artists_url: str,
+    image: SimpleUploadedFile,
+) -> None:
+    response = admin_client.post(
+        add_artist_url,
+        {
+            'nickname': 'John Doe',
+            'photo': image,
+        },
+    )
+    assert response.status_code == 302
+    assert response.headers['location'] == list_artists_url

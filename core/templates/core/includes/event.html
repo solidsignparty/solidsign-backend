@@ -1,0 +1,43 @@
+{% load static %}
+
+<div class="flex flex-col gap-1">
+  <div class="flex xs:flex-row w-full items-stretch xs:items-center justify-between flex-col gap-4">
+    <div class="flex flex-col">
+      <div>{{ event.start_time|date:"d.m.Y" }}</div>
+      <div class="text-gray-400">
+        {% if event.is_past_due %}
+        Мероприятие состоялось
+        {% else %}
+        Следующее мероприятие
+        {% endif %}
+      </div>
+    </div>
+    <div class="flex flex-col items-center justify-items-center">
+      {% if not event.is_past_due %}
+      <a href="{% url 'calendar' event_id=event.id %}"
+        target="_blank"
+        title="Добавить в календарь"
+        class="space-between border border-neutral-500 py-1 px-10 rounded hover:border-neutral-100 flex flex-row gap-2 items-center">
+        <svg class="w-5 h-5 my-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17 13h-5v5h5v-5zM16 2v2H8V2H6v2H3.01L3 22h18V4h-3V2h-2zm3 18H5V9h14v11z"></path>
+        </svg>
+        <span>Не забыть</span>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="w-full bg-neutral-900">
+    <img class="w-full aspect-auto" src="{% static event.image.url %}" alt="">
+  </div>
+  {% if not event.is_past_due %}
+  <div class="flex flex-col items-center" >
+    <a
+      href="{{ event.tickets_url }}"
+      style="width: 200px"
+      target="_blank"
+      class="text-black bg-white hover:bg-neutral-200 focus:ring-4 focus:ring-neutral-300 text-md rounded text-center p-2 mt-3 focus:outline-none">
+      Купить билет
+    </a>
+  </div>
+  {% endif %}
+</div>
