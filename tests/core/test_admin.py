@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from io import BytesIO
 
 import pytest
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
@@ -82,7 +83,7 @@ def test_can_create_event(
     assert event.title == title
     assert event.location == location
     assert event.tickets_url == tickets_url
-    assert re.match(r'/events/.*\.jpg', event.image.url)
+    assert re.match(rf'{settings.MEDIA_URL}events/.*\.jpg', event.image.url)
 
 
 def test_can_view_change_artist_page(admin_client: Client, artist: Artist) -> None:
@@ -126,3 +127,4 @@ def test_can_create_artist(
     )
     assert response.status_code == 302
     assert response.headers['location'] == list_artists_url
+    assert Artist.objects.get(nickname='John Doe')
