@@ -27,7 +27,7 @@
     </div>
   </div>
   <div class="w-full bg-neutral-900">
-    <img class="w-full aspect-auto" src="{% static event.image.url %}" alt="">
+    <img class="w-full aspect-auto" src="{{ event.image.url }}" alt="">
   </div>
   {% if not event.is_past_due %}
   <div class="flex flex-col items-center" >
