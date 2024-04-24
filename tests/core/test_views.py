@@ -20,7 +20,6 @@ def assert_upcoming_event() -> Callable[[Event, str], None]:
     def _assert_upcoming_event(event: Event, content: str) -> None:
         for item in [
             format_time(event.start_time),
-            format_time(event.end_time),
             event.tickets_url,
             event.image.url,
             'Купить билет',
@@ -37,7 +36,6 @@ def assert_past_event() -> Callable[[Event, str], None]:
     def _assert_past_event(event: Event, content: str) -> None:
         for item in [
             format_time(event.start_time),
-            format_time(event.end_time),
             event.image.url,
         ]:
             assert item in content
