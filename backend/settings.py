@@ -203,3 +203,4 @@ if IS_PROD:
 META_USE_OG_PROPERTIES = True
 META_DEFAULT_KEYWORDS = ['solid', 'sign', 'solidsign', 'techno', 'hard techno', 'schranz', 'Набережные Челны', 'техно']
 META_SITE_NAME = 'SOLID SIGN'
+META_SITE_PROTOCOL = 'https'

@@ -31,6 +31,7 @@ class Event(ModelMeta, models.Model):  # type: ignore[misc]
         'title': 'title',
         'description': 'description',
         'image': 'get_meta_image',
+        'expiration_time': 'end_time',
     }
 
     class Meta:
