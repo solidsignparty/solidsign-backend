@@ -1,6 +1,6 @@
 from datetime import datetime
 from io import BytesIO
-from typing import TypedDict
+from typing import Any, TypedDict
 from urllib.parse import urlencode
 
 from django.http import FileResponse, HttpRequest, HttpResponseRedirect, JsonResponse
@@ -20,6 +20,13 @@ class EventListView(ListView[Event]):
     model = Event
     context_object_name = 'events'
     ordering = ('-start_time',)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        events_list = context['object_list'] or []
+        if latest_event := events_list[0] if len(events_list) > 0 else None:
+            context['meta'] = latest_event.as_meta(self.request)
+        return context
 
 
 class IndexView(EventListView):

@@ -3,6 +3,7 @@ import uuid
 
 from django.db import models
 from django.utils import timezone
+from meta.models import ModelMeta
 
 
 def default_start_time() -> datetime.datetime:
@@ -16,7 +17,7 @@ def default_end_time() -> datetime.datetime:
 ICS_DATE_FORMAT = '%Y%m%dT%H%M%S'
 
 
-class Event(models.Model):
+class Event(ModelMeta, models.Model):  # type: ignore[misc]
     start_time = models.DateTimeField(verbose_name='Время начала', default=default_start_time)
     end_time = models.DateTimeField(verbose_name='Время окончания', default=default_end_time)
     title = models.CharField(max_length=256, verbose_name='Название')
@@ -24,6 +25,13 @@ class Event(models.Model):
     tickets_url = models.URLField(verbose_name='Ссылка на билеты')
     image = models.ImageField(upload_to='events/', verbose_name='Изображение')
     uuid = models.UUIDField(default=uuid.uuid4, verbose_name='Идентификатор для каледнаря')
+    description = models.TextField(verbose_name='Описание', blank=True, default='')
+
+    _metadata = {
+        'title': 'title',
+        'description': 'description',
+        'image': 'get_meta_image',
+    }
 
     class Meta:
         verbose_name = 'Мероприятиe'
@@ -43,6 +51,12 @@ class Event(models.Model):
     @property
     def end_time_formatted(self) -> str:
         return self.end_time.strftime(ICS_DATE_FORMAT)
+
+    def get_meta_image(self) -> str:
+        return str(self.image.url)
+
+    def get_meta_description(self) -> str:
+        return self.description or self.title
 
 
 class Artist(models.Model):

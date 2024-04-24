@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'tailwind',
+    'meta',
     *(['django_browser_reload'] if DEBUG else []),
     'theme',
     'core',
@@ -197,3 +198,8 @@ if IS_PROD:
         'default': DEFAULT_STORAGE,
         'staticfiles': STATIC_STORAGE,
     }
+
+
+META_USE_OG_PROPERTIES = True
+META_DEFAULT_KEYWORDS = ['solid', 'sign', 'solidsign', 'techno', 'hard techno', 'schranz', 'Набережные Челны', 'техно']
+META_SITE_NAME = 'SOLID SIGN'

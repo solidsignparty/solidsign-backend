@@ -216,6 +216,20 @@ asgiref = ">=3.6"
 Django = ">=3.2"
 
 [[package]]
+name = "django-meta"
+version = "2.4.2"
+description = "Pluggable app for handling webpage meta tags and OpenGraph properties"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django-meta-2.4.2.tar.gz", hash = "sha256:1f96193935134ab734b25f42ce2d3b2148d75b1cd5da696e71ccf49766e804aa"},
+    {file = "django_meta-2.4.2-py2.py3-none-any.whl", hash = "sha256:afc6b77c3885db0cd97883d1dc3df47f91a9c7951b2f4928fee91ca60a7d0ff2"},
+]
+
+[package.extras]
+docs = ["django (<5.0)", "sphinx-rtd-theme"]
+
+[[package]]
 name = "django-storages"
 version = "1.14.2"
 description = "Support for many storage backends in Django"
@@ -827,4 +841,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "4919ecb46ad43716a4cebfe5c251ba19cf4554172a5a191a46882627039f5bd8"
+content-hash = "3ede4bd745e7e923c36f7be9915e96ab88ad7c2aecf7f0a7a31252311fa2616a"
