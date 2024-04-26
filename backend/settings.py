@@ -43,12 +43,14 @@ ALLOWED_HOSTS: list[str] = [
     '127.0.0.1',
     '192.168.1.85',
     'v2134454.hosted-by-vdsina.ru',
+    'solidsign.ru',
 ]
 
 CSRF_TRUSTED_ORIGINS: list[str] = [
     'http://localhost',
     'http://127.0.0.1',
     'https://v2134454.hosted-by-vdsina.ru',
+    'https://solidsign.ru',
 ]
 
 CORS_ALLOWED_ORIGINS: list[str] = [
