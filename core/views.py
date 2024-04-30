@@ -1,18 +1,24 @@
-from datetime import datetime
 from io import BytesIO
-from typing import Any, TypedDict
+from typing import Any
 from urllib.parse import urlencode
 
-from django.http import FileResponse, HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import FileResponse, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.utils import timezone
-from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView
+from meta.views import Meta
 
 from core.models import ICS_DATE_FORMAT, Artist, Event
 
 from .context_processors import PageEnum
+
+default_meta = Meta(
+    title='SOLID SIGN',
+    og_title='SOLID SIGN',
+    description='Техно из Набережных Челнов',
+    url='https://solidsign.ru',
+)
 
 
 class EventListView(ListView[Event]):
@@ -24,8 +30,10 @@ class EventListView(ListView[Event]):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         events_list = context['object_list'] or []
-        if latest_event := events_list[0] if len(events_list) > 0 else None:
+        if (latest_event := (events_list[0] if len(events_list) > 0 else None)) and not latest_event.is_past_due:
             context['meta'] = latest_event.as_meta(self.request)
+        else:
+            context['meta'] = default_meta
         return context
 
 
@@ -71,29 +79,3 @@ def calendar(request: HttpRequest, event_id: int) -> FileResponse | HttpResponse
     if 'Mac' in request.headers.get('user-agent', ''):
         return _ics_calendar(event)
     return _google_calendar(event)
-
-
-class EventDict(TypedDict):
-    title: str
-    start_time: datetime
-    end_time: datetime
-    location: str
-    tickets_url: str
-    image_url: str
-
-
-@require_http_methods(['GET'])
-def events(request: HttpRequest) -> JsonResponse:
-    items: list[EventDict] = []
-    for event in Event.objects.all().order_by('-start_time'):
-        items.append(
-            {
-                'title': event.title,
-                'start_time': event.start_time,
-                'end_time': event.end_time,
-                'location': event.location,
-                'tickets_url': event.tickets_url,
-                'image_url': event.image.url,
-            }
-        )
-    return JsonResponse(items, safe=False)

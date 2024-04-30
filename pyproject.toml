@@ -40,6 +40,7 @@ strict = true
 module = [
     "factory",
     "meta.models",
+    "meta.views",
 ]
 ignore_missing_imports = true
 
