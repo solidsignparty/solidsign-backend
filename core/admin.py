@@ -5,7 +5,7 @@ from .models import Artist, Event
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin[Event]):
-    list_display = ('__str__', 'start_time', 'location')
+    list_display = ('__str__', 'start_time', 'location', 'show')
     search_fields = ('title', 'location')
     date_hierarchy = 'start_time'
     ordering = ('-start_time',)
@@ -14,6 +14,6 @@ class EventAdmin(admin.ModelAdmin[Event]):
 
 @admin.register(Artist)
 class ArtistAdmin(admin.ModelAdmin[Artist]):
-    list_display = ('__str__',)
+    list_display = ('__str__', 'show')
     search_fields = ('nickname',)
     ordering = ('-nickname',)

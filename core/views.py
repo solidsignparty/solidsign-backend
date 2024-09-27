@@ -23,7 +23,7 @@ default_meta = Meta(
 
 class EventListView(ListView[Event]):
     template_name = 'core/includes/events.html'
-    model = Event
+    queryset = Event.objects.filter(show=True)
     context_object_name = 'events'
     ordering = ('-start_time',)
 
@@ -44,7 +44,7 @@ class IndexView(EventListView):
 
 
 class ArtistListView(ListView[Artist]):
-    model = Artist
+    queryset = Artist.objects.filter(show=True)
     template_name = 'core/artists.html'
     extra_context = {'page': PageEnum.ARTISTS}
     ordering = ('nickname',)

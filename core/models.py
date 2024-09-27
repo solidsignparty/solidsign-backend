@@ -26,6 +26,7 @@ class Event(ModelMeta, models.Model):  # type: ignore[misc]
     image = models.ImageField(upload_to='events/', verbose_name='Изображение')
     uuid = models.UUIDField(default=uuid.uuid4, verbose_name='Идентификатор для каледнаря')
     description = models.TextField(verbose_name='Описание', blank=True, default='')
+    show = models.BooleanField(verbose_name='Показывать на странице', default=True)
 
     _metadata = {
         'title': 'title',
@@ -63,6 +64,7 @@ class Event(ModelMeta, models.Model):  # type: ignore[misc]
 class Artist(models.Model):
     nickname = models.CharField(verbose_name='Никнейм', max_length=128, unique=True)
     photo = models.ImageField(upload_to='artists/', verbose_name='Фото')
+    show = models.BooleanField(verbose_name='Показывать на странице', default=True)
 
     class Meta:
         verbose_name = 'Артист'
