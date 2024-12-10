@@ -169,7 +169,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'https://cdn.solisign.ru/'
+STATIC_URL = 'http://cdn.solisign.ru/'
 # STATIC_URL = 'https://storage.yandexcloud.net/solidsign/'
 if not IS_PROD:
     STATIC_URL = 'static/'

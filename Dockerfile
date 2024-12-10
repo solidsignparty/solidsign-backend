@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 ADD poetry.lock pyproject.toml export_deps.sh /opt/app/
 
