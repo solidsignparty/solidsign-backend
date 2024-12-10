@@ -20,6 +20,7 @@ jobs:
     - name: Install Dependencies
       run: |
         uv sync
+        uv pip install pre-commit
     - name: Lint
       run: |
         uv run pre-commit run -a
