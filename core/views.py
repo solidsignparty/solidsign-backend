@@ -2,6 +2,7 @@ from io import BytesIO
 from typing import Any
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.http import FileResponse, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import loader
@@ -38,7 +39,7 @@ class EventListView(ListView[Event]):
 
 
 class IndexView(EventListView):
-    paginate_by = 3
+    paginate_by = settings.EVENTS_PAGINATE_BY
     template_name = 'core/index.html'
     extra_context = {'page': PageEnum.EVENTS}
 
@@ -57,7 +58,7 @@ def _ics_calendar(event: Event) -> FileResponse:
         'core/calendar/ics.tmpl',
         {
             'event': event,
-            'timestmp': f'{timestamp.strftime(ICS_DATE_FORMAT)}Z',
+            'timestamp': f'{timestamp.strftime(ICS_DATE_FORMAT)}Z',
             'uuid': event.uuid,
         },
     )
