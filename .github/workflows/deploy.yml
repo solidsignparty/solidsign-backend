@@ -3,6 +3,9 @@ name: Deploy
 on:
   workflow_call:
 
+env:
+  DOCKER_TLS_VERIFY: 0
+
 jobs:
   deploy:
 
