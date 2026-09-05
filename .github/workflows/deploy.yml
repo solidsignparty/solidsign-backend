@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 env:
-  DOCKER_TLS_VERIFY: 0
+  DEPLOY_SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT || '22' }}
 
 jobs:
   deploy:
@@ -12,63 +12,96 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Set up Context
+      - name: Set up SSH
+        env:
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
         run: |
-          echo ${{ secrets.CA_PEM }} | base64 -d > ${HOME}/ca.pem
-          echo ${{ secrets.CERT_PEM }} | base64 -d > ${HOME}/cert.pem
-          echo ${{ secrets.KEY_PEM }} | base64 -d > ${HOME}/key.pem
-          docker context create remote \
-            --description "remote" \
-            --docker "host=tcp://${{ secrets.DOCKER_REMOTE_HOST }},ca=${HOME}/ca.pem,cert=${HOME}/cert.pem,key=${HOME}/key.pem"
-          docker context use remote
+          set -euo pipefail
 
-      - name: Migrate
+          for name in DEPLOY_SSH_HOST DEPLOY_SSH_KEY DEPLOY_SSH_KNOWN_HOSTS DEPLOY_SSH_PORT; do
+            if [[ -z "${!name:-}" ]]; then
+              printf '%s is required\n' "${name}" >&2
+              exit 1
+            fi
+          done
+
+          install -d -m 700 "${HOME}/.ssh"
+          printf '%s\n' "${DEPLOY_SSH_KEY}" > "${HOME}/.ssh/deploy_key"
+          chmod 600 "${HOME}/.ssh/deploy_key"
+          printf '%s\n' "${DEPLOY_SSH_KNOWN_HOSTS}" > "${HOME}/.ssh/known_hosts"
+          chmod 600 "${HOME}/.ssh/known_hosts"
+
+      - name: Deploy over SSH
+        env:
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          S3_CLIENT_ID: ${{ secrets.S3_CLIENT_ID }}
+          S3_CLIENT_SECRET: ${{ secrets.S3_CLIENT_SECRET }}
         run: |
+          set -euo pipefail
+
+          for name in DEPLOY_SSH_HOST DEPLOY_SSH_USER DEPLOY_SSH_PORT IMAGE_NAME SECRET_KEY S3_CLIENT_ID S3_CLIENT_SECRET; do
+            if [[ -z "${!name:-}" ]]; then
+              printf '%s is required\n' "${name}" >&2
+              exit 1
+            fi
+          done
+
+          target="${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}"
+          ssh_args=(-i "${HOME}/.ssh/deploy_key" -p "${DEPLOY_SSH_PORT}" -o IdentitiesOnly=yes)
+
+          env_payload="$({
+            printf 'SECRET_KEY=%s\n' "${SECRET_KEY}"
+            printf 'S3_CLIENT_ID=%s\n' "${S3_CLIENT_ID}"
+            printf 'S3_CLIENT_SECRET=%s\n' "${S3_CLIENT_SECRET}"
+            printf 'ENV=prod\n'
+          } | base64 -w0)"
+
+          ssh "${ssh_args[@]}" "${target}" "ENV_PAYLOAD=${env_payload@Q} IMAGE_NAME=${IMAGE_NAME@Q} bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          remote_dir="$(mktemp -d /tmp/solidsign-deploy.XXXXXX)"
+          remote_env="${remote_dir}/env"
+          cleanup() {
+            rm -rf "${remote_dir}"
+          }
+          trap cleanup EXIT
+
+          printf '%s' "${ENV_PAYLOAD}" | base64 -d > "${remote_env}"
+          chmod 600 "${remote_env}"
+
           docker run \
             --rm \
             -v db:/opt/app/db \
-            -e SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
-            -e S3_CLIENT_ID="${{ secrets.S3_CLIENT_ID }}" \
-            -e S3_CLIENT_SECRET="${{ secrets.S3_CLIENT_SECRET }}" \
-            -e ENV=prod \
+            --env-file "${remote_env}" \
             --pull always \
             --name solidsign-migrate \
-            ${{ vars.IMAGE_NAME }} \
+            "${IMAGE_NAME}" \
             python3 ./manage.py migrate
 
-      - name: Collectstatic
-        run: |
           docker run \
             --rm \
             -v db:/opt/app/db \
-            -e SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
-            -e S3_CLIENT_ID="${{ secrets.S3_CLIENT_ID }}" \
-            -e S3_CLIENT_SECRET="${{ secrets.S3_CLIENT_SECRET }}" \
-            -e ENV=prod \
+            --env-file "${remote_env}" \
             --name solidsign-collectstatic \
-            ${{ vars.IMAGE_NAME }} \
+            "${IMAGE_NAME}" \
             python3 ./manage.py collectstatic --noinput
 
-      - name: Deploy
-        run: |
-          docker rm -f solidsign
+          docker rm -f solidsign >/dev/null 2>&1 || true
           docker run \
             -p 8001:8000 \
             -v db:/opt/app/db \
             -d \
-            -e SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
-            -e S3_CLIENT_ID="${{ secrets.S3_CLIENT_ID }}" \
-            -e S3_CLIENT_SECRET="${{ secrets.S3_CLIENT_SECRET }}" \
-            -e ENV=prod \
+            --env-file "${remote_env}" \
             --pull always \
             --restart always \
             --name solidsign \
-            ${{ vars.IMAGE_NAME }} \
+            "${IMAGE_NAME}" \
             gunicorn -b 0.0.0.0:8000 backend.wsgi
-
+          REMOTE
