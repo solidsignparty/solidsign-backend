@@ -172,8 +172,9 @@ USE_TZ = True
 S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', 'solidsign')
 S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', 'https://s3.ru-7.storage.selcloud.ru').rstrip('/')
 S3_REGION_NAME = os.getenv('S3_REGION_NAME', 'ru-7')
+S3_CUSTOM_DOMAIN = os.getenv('S3_CUSTOM_DOMAIN', 'd8a8e64a-33f0-4b13-953b-862c08b5c7be.selstorage.ru')
 
-STATIC_URL = os.getenv('STATIC_URL', 'https://d8a8e64a-33f0-4b13-953b-862c08b5c7be.selstorage.ru/')
+STATIC_URL = os.getenv('STATIC_URL', f'https://{S3_CUSTOM_DOMAIN}/')
 if not IS_PROD:
     STATIC_URL = 'static/'
     MEDIA_URL = 'media/'
@@ -195,6 +196,7 @@ S3_OBJECT_STORAGE: dict[str, Any] = {
         'endpoint_url': S3_ENDPOINT_URL,
         'region_name': S3_REGION_NAME,
         'querystring_auth': False,
+        'custom_domain': S3_CUSTOM_DOMAIN,
     },
 }
 STATIC_STORAGE = DEFAULT_STORAGE = S3_OBJECT_STORAGE
