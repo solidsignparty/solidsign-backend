@@ -1,4 +1,4 @@
-FROM python:3.14-slim as build-python
+FROM python:3.14-slim AS build-python
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
@@ -6,6 +6,7 @@ ENV UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/code/.venv
 
 COPY --from=ghcr.io/astral-sh/uv:0.5.7 /uv /uvx /bin/
+RUN apt update && apt install -y zlib1g-dev libjpeg-dev gcc
 COPY pyproject.toml uv.lock /_lock/
 RUN --mount=type=cache,target=/root/.cache \
     cd /_lock && \
