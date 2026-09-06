@@ -16,7 +16,6 @@ RUN --mount=type=cache,target=/root/.cache \
       --group prod
 
 FROM python:3.14-slim
-RUN apt update && apt install -y ca-certificates && update-ca-certificates
 WORKDIR /opt/app
 COPY --from=build-python /code /code
 ENV PATH="/code/.venv/bin:$PATH"
