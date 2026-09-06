@@ -6,7 +6,7 @@ ENV UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/code/.venv
 
 COPY --from=ghcr.io/astral-sh/uv:0.5.7 /uv /uvx /bin/
-RUN apt update && apt install -y zlib1g-dev libjpeg-dev gcc ca-certificates
+RUN apt update && apt install -y zlib1g-dev libjpeg-dev gcc
 COPY pyproject.toml uv.lock /_lock/
 RUN --mount=type=cache,target=/root/.cache \
     cd /_lock && \
@@ -16,6 +16,7 @@ RUN --mount=type=cache,target=/root/.cache \
       --group prod
 
 FROM python:3.14-slim
+RUN apt update && apt install ca-ceritficates
 WORKDIR /opt/app
 COPY --from=build-python /code /code
 ENV PATH="/code/.venv/bin:$PATH"
