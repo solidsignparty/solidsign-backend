@@ -1,4 +1,4 @@
-FROM python:3.13-slim as build-python
+FROM python:3.14-slim as build-python
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/root/.cache \
       --no-group dev \
       --group prod
 
-FROM python:3.13-slim
+FROM python:3.14-slim
 WORKDIR /opt/app
 COPY --from=build-python /code /code
 ENV PATH="/code/.venv/bin:$PATH"
