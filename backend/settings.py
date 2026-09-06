@@ -173,7 +173,7 @@ S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', 'solidsign')
 S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', 'https://s3.ru-7.storage.selcloud.ru').rstrip('/')
 S3_REGION_NAME = os.getenv('S3_REGION_NAME', 'ru-7')
 
-STATIC_URL = f'{S3_ENDPOINT_URL}/{S3_BUCKET_NAME}/'
+STATIC_URL = os.getenv('STATIC_URL', 'https://d8a8e64a-33f0-4b13-953b-862c08b5c7be.selstorage.ru/')
 if not IS_PROD:
     STATIC_URL = 'static/'
     MEDIA_URL = 'media/'
