@@ -169,7 +169,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'https://storage.yandexcloud.net/solidsign/'
+S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', 'solidsign')
+S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', 'https://s3.ru-7.storage.selcloud.ru').rstrip('/')
+S3_REGION_NAME = os.getenv('S3_REGION_NAME', 'ru-7')
+
+STATIC_URL = f'{S3_ENDPOINT_URL}/{S3_BUCKET_NAME}/'
 if not IS_PROD:
     STATIC_URL = 'static/'
     MEDIA_URL = 'media/'
@@ -182,17 +186,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TAILWIND_APP_NAME = 'theme'
 
-YANDEX_OBJECT_STORAGE: dict[str, Any] = {
+S3_OBJECT_STORAGE: dict[str, Any] = {
     'BACKEND': 'storages.backends.s3.S3Storage',
     'OPTIONS': {
-        'bucket_name': 'solidsign',
+        'bucket_name': S3_BUCKET_NAME,
         'access_key': os.getenv('S3_CLIENT_ID'),
         'secret_key': os.getenv('S3_CLIENT_SECRET'),
-        'endpoint_url': 'https://storage.yandexcloud.net',
+        'endpoint_url': S3_ENDPOINT_URL,
+        'region_name': S3_REGION_NAME,
         'querystring_auth': False,
     },
 }
-STATIC_STORAGE = DEFAULT_STORAGE = YANDEX_OBJECT_STORAGE
+STATIC_STORAGE = DEFAULT_STORAGE = S3_OBJECT_STORAGE
 
 
 if IS_PROD:
