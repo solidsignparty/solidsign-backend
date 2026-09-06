@@ -6,7 +6,7 @@ ENV UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/code/.venv
 
 COPY --from=ghcr.io/astral-sh/uv:0.5.7 /uv /uvx /bin/
-RUN apt update && apt install -y zlib1g-dev libjpeg-dev gcc
+RUN apt update && apt install -y zlib1g-dev libjpeg-dev gcc ca-certificates
 COPY pyproject.toml uv.lock /_lock/
 RUN --mount=type=cache,target=/root/.cache \
     cd /_lock && \
